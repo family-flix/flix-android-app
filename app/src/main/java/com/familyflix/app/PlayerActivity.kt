@@ -69,15 +69,9 @@ class PlayerActivity : AppCompatActivity() {
     private fun setupRecyclerView() {
         episodeAdapter = EpisodeAdapter { item ->
             // Switch episode
-            // We need to find the file source id from the item
-            val sources = item.sources
-            if (!sources.isNullOrEmpty()) {
-                val fileId = sources[0].id
-                fetchVideoUrl(fileId)
-                episodeAdapter.setCurrentPlaying(item.id)
-            } else {
-                Toast.makeText(this, "No video source for this episode", Toast.LENGTH_SHORT).show()
-            }
+            // We use the source id directly
+            fetchVideoUrl(item.id)
+            episodeAdapter.setCurrentPlaying(item.id)
         }
         binding.rvEpisodes.layoutManager = LinearLayoutManager(this)
         binding.rvEpisodes.adapter = episodeAdapter
@@ -100,7 +94,7 @@ class PlayerActivity : AppCompatActivity() {
                         return@launch
                     }
                     
-                    val curSourceFileId = curSource.curSourceFileId
+                    val curSourceId = curSource.id
                     val sources = playingResponse.data.sources
                     
                     if (mediaType != MediaTypes.MOVIE) {
@@ -114,7 +108,7 @@ class PlayerActivity : AppCompatActivity() {
                         }
                     }
 
-                    fetchVideoUrl(curSourceFileId)
+                    fetchVideoUrl(curSourceId)
                 } else {
                     Toast.makeText(this@PlayerActivity, "Error: ${playingResponse.msg}", Toast.LENGTH_SHORT).show()
                 }
@@ -125,18 +119,18 @@ class PlayerActivity : AppCompatActivity() {
         }
     }
 
-    private fun fetchVideoUrl(sourceFileId: String) {
+    private fun fetchVideoUrl(sourceId: String) {
         lifecycleScope.launch {
             try {
                 // 2. Get actual video URL
                 val request = com.familyflix.app.model.SourcePlayingRequest(
-                    id = sourceFileId,
+                    id = sourceId,
                     type = "SD" // Default resolution
                 )
                 val sourceResponse = RetrofitClient.apiService.getSourcePlaying(request)
                 
                 if (sourceResponse.code == 0) {
-                    val videoUrl = sourceResponse.data.url
+                    val videoUrl = RetrofitClient.BASE_URL + sourceResponse.data.url
                     initializePlayer(videoUrl)
                 } else {
                     Toast.makeText(this@PlayerActivity, "Error: ${sourceResponse.msg}", Toast.LENGTH_SHORT).show()
