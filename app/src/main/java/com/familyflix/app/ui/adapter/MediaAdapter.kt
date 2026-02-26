@@ -47,8 +47,9 @@ class MediaAdapter(
             binding.tvOverview.text = item.overview ?: ""
 
             val posterUrl = if (item.posterPath != null) {
-                if (item.posterPath.startsWith("http")) item.posterPath 
+                val url = if (item.posterPath.startsWith("http")) item.posterPath
                 else "https://media-t.funzm.com${item.posterPath}"
+                "http://192.168.1.118:3200/api/proxy/javbus?url=$url"
             } else null
 
             Glide.with(binding.root.context)

@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.view.View
 import android.view.WindowInsets
 import android.view.WindowInsetsController
 import android.widget.Toast
@@ -53,6 +54,10 @@ class PlayerActivity : AppCompatActivity() {
         mediaId = intent.getStringExtra(EXTRA_MEDIA_ID)
         mediaType = intent.getIntExtra(EXTRA_MEDIA_TYPE, MediaTypes.MOVIE)
 
+        if (mediaType == MediaTypes.MOVIE) {
+            binding.rvEpisodes.visibility = View.GONE
+        }
+
         if (mediaId != null) {
             fetchPlayingInfo()
         } else {
@@ -89,23 +94,24 @@ class PlayerActivity : AppCompatActivity() {
                 val playingResponse = RetrofitClient.apiService.getMediaPlaying(request)
                 
                 if (playingResponse.code == 0) {
-                    val curSourceFileId = playingResponse.data.curSource.curSourceFileId
+                    val curSource = playingResponse.data.curSource
+                    if (curSource == null) {
+                        Toast.makeText(this@PlayerActivity, "No playable source found", Toast.LENGTH_SHORT).show()
+                        return@launch
+                    }
+                    
+                    val curSourceFileId = curSource.curSourceFileId
                     val sources = playingResponse.data.sources
                     
-                    // Update episodes list
-                    episodeAdapter.submitList(sources)
-                    
-                    // Find the episode ID that corresponds to the current file ID?
-                    // The API returns `curSource` which has `order` and `curSourceFileId`.
-                    // We can match by order or try to find which SourceItem contains this fileId.
-                    // Simplified: Use curSource.order to find the item in list if possible, 
-                    // or just rely on the fact that we are playing `curSourceFileId`.
-                    
-                    // Highlight the current episode
-                    // We don't have the "episode ID" directly in curSource, but we have order.
-                    val currentEpisode = sources.find { it.order == playingResponse.data.curSource.order }
-                    if (currentEpisode != null) {
-                        episodeAdapter.setCurrentPlaying(currentEpisode.id)
+                    if (mediaType != MediaTypes.MOVIE) {
+                        // Update episodes list
+                        episodeAdapter.submitList(sources)
+                        
+                        // Highlight the current episode
+                        val currentEpisode = sources.find { it.order == curSource.order }
+                        if (currentEpisode != null) {
+                            episodeAdapter.setCurrentPlaying(currentEpisode.id)
+                        }
                     }
 
                     fetchVideoUrl(curSourceFileId)

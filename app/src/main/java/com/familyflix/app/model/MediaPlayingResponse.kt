@@ -6,7 +6,7 @@ data class MediaPlayingResponse(
     val id: String,
     val name: String,
     val overview: String?,
-    @SerializedName("cur_source") val curSource: CurSource,
+    @SerializedName("cur_source") val curSource: CurSource?,
     val sources: List<SourceItem>
 )
 
