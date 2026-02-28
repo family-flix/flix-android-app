@@ -1,28 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="@android:color/black">
 
     <androidx.media3.ui.PlayerView
         android:id="@+id/playerView"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:keepScreenOn="true" />
+        android:layout_height="match_parent"
+        android:keepScreenOn="true"
+        app:controller_layout_id="@layout/custom_player_control_view" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_episodes"
-        android:layout_width="match_parent"
+    <!-- Center Feedback Overlay (Volume/Seek) -->
+    <LinearLayout
+        android:id="@+id/layout_gesture_feedback"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="0"
-        android:background="@android:color/white"
-        android:maxHeight="300dp"
-        android:minHeight="100dp"
-        tools:listitem="@layout/item_episode"
-        tools:itemCount="5" />
+        android:layout_gravity="center"
+        android:background="#80000000"
+        android:padding="16dp"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:gravity="center"
+        android:minWidth="120dp">
 
-</LinearLayout>
+        <ImageView
+            android:id="@+id/iv_gesture_icon"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            app:tint="@android:color/white"
+            tools:src="@android:drawable/ic_lock_silent_mode_off" />
+
+        <TextView
+            android:id="@+id/tv_gesture_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            tools:text="Volume: 50%" />
+    </LinearLayout>
+
+    <!-- Speed Overlay -->
+    <TextView
+        android:id="@+id/tv_speed_overlay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|center_horizontal"
+        android:layout_marginTop="48dp"
+        android:background="#80000000"
+        android:padding="8dp"
+        android:text="2.0x Speed"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        android:visibility="gone" />
+
+</FrameLayout>

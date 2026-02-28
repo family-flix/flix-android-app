@@ -5,7 +5,9 @@ import com.google.gson.annotations.SerializedName
 data class MediaListRequest(
     val page: Int,
     @SerializedName("page_size") val pageSize: Int,
-    val type: Int
+    val type: Int,
+    val random: Boolean = false,
+    val seed: Long = 0
 )
 
 data class MediaPlayingRequest(

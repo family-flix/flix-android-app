@@ -42,7 +42,8 @@ class MainActivity : AppCompatActivity() {
             tab.text = when (position) {
                 0 -> "电影"
                 1 -> "电视剧"
-                else -> "视频"
+                2 -> "视频"
+                else -> "随机"
             }
         }.attach()
     }

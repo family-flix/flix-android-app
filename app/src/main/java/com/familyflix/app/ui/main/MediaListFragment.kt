@@ -22,6 +22,8 @@ class MediaListFragment : Fragment() {
     private val binding get() = _binding!!
 
     private var mediaType: Int = MediaTypes.MOVIE
+    private var isRandom: Boolean = false
+    private var seed: Long = 0
     private lateinit var adapter: MediaAdapter
     private var currentPage = 1
     private var isLoading = false
@@ -29,11 +31,13 @@ class MediaListFragment : Fragment() {
 
     companion object {
         private const val ARG_TYPE = "type"
+        private const val ARG_RANDOM = "random"
 
-        fun newInstance(type: Int): MediaListFragment {
+        fun newInstance(type: Int, isRandom: Boolean = false): MediaListFragment {
             val fragment = MediaListFragment()
             val args = Bundle()
             args.putInt(ARG_TYPE, type)
+            args.putBoolean(ARG_RANDOM, isRandom)
             fragment.arguments = args
             return fragment
         }
@@ -43,6 +47,7 @@ class MediaListFragment : Fragment() {
         super.onCreate(savedInstanceState)
         arguments?.let {
             mediaType = it.getInt(ARG_TYPE)
+            isRandom = it.getBoolean(ARG_RANDOM, false)
         }
     }
 
@@ -103,6 +108,9 @@ class MediaListFragment : Fragment() {
         if (refresh) {
             currentPage = 1
             isLastPage = false
+            if (isRandom) {
+                seed = System.currentTimeMillis()
+            }
         }
 
         lifecycleScope.launch {
@@ -110,7 +118,9 @@ class MediaListFragment : Fragment() {
                 val request = com.familyflix.app.model.MediaListRequest(
                     page = currentPage,
                     pageSize = 20,
-                    type = mediaType
+                    type = mediaType,
+                    random = isRandom,
+                    seed = if (isRandom) seed else 0
                 )
 
                 val response = if (mediaType == MediaTypes.SEASON) {
